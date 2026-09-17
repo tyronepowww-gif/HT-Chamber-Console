@@ -1,0 +1,1857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+
+<meta name="theme-color" content="#0b0d16">
+
+<title>T-Chamber</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #0b0d16;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    touch-action: none;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+  }
+
+  button {
+    font: inherit;
+  }
+
+  /* =========================
+     APP
+     ========================= */
+
+  #app {
+    width: 100%;
+    max-width: 900px;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* =========================
+     HEADER
+     ========================= */
+
+  #header {
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #292d40;
+    background: #10131f;
+    z-index: 10;
+  }
+
+  #title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+
+  #subtitle {
+    font-size: 11px;
+    color: #8d94aa;
+    margin-top: 3px;
+  }
+
+  #densityDisplay {
+    text-align: right;
+  }
+
+  #densityDisplay .label {
+    font-size: 9px;
+    color: #8d94aa;
+    letter-spacing: 1px;
+  }
+
+  #densityValue {
+    font-size: 21px;
+    font-weight: 800;
+  }
+
+  /* =========================
+     SCREENS
+     ========================= */
+
+  .screen {
+    display: none;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  /* =========================
+     HOME
+     ========================= */
+
+  #home {
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+  }
+
+  .hero {
+    margin-bottom: 28px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 10vw, 72px);
+    margin: 0;
+    letter-spacing: -2px;
+  }
+
+  .hero p {
+    color: #aab0c0;
+    line-height: 1.5;
+    max-width: 600px;
+    margin-top: 12px;
+  }
+
+  .panel {
+    border: 1px solid #292d40;
+    background: #111522;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+
+  .panelTitle {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    color: #8d94aa;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  #densityButtons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .densityButton {
+    min-height: 52px;
+    border: 1px solid #34394f;
+    border-radius: 10px;
+    background: #181c2a;
+    color: white;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .densityButton.selected {
+    border-color: white;
+    background: #272c3e;
+  }
+
+  #durationButtons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .durationButton {
+    min-height: 48px;
+    border: 1px solid #34394f;
+    border-radius: 10px;
+    background: #181c2a;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .durationButton.selected {
+    border-color: white;
+    background: #272c3e;
+  }
+
+  #startButton {
+    width: 100%;
+    min-height: 62px;
+    border: 0;
+    border-radius: 14px;
+    background: white;
+    color: #090b11;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  /* =========================
+     GAME
+     ========================= */
+
+  #game {
+    flex-direction: column;
+    position: relative;
+    min-height: 0;
+  }
+
+  #hud {
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #292d40;
+    border-bottom: 1px solid #292d40;
+    z-index: 5;
+  }
+
+  .hudItem {
+    background: #10131f;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hudLabel {
+    color: #777f97;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .hudValue {
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+
+  #arena {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at center, #171b2b 0%, #0b0d16 65%);
+  }
+
+  #arenaGrid {
+    position: absolute;
+    inset: 0;
+    opacity: .22;
+    background-image:
+      linear-gradient(#3a4055 1px, transparent 1px),
+      linear-gradient(90deg, #3a4055 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  #centerLine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: #292d40;
+    pointer-events: none;
+  }
+
+  /* =========================
+     PLAYER
+     ========================= */
+
+  #player {
+    position: absolute;
+    width: 42px;
+    height: 70px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  #head {
+    width: 22px;
+    height: 22px;
+    border: 3px solid white;
+    border-radius: 50%;
+    margin: 0 auto;
+  }
+
+  #body {
+    position: absolute;
+    width: 4px;
+    height: 30px;
+    background: white;
+    left: 19px;
+    top: 21px;
+    border-radius: 3px;
+  }
+
+  .limb {
+    position: absolute;
+    height: 4px;
+    background: white;
+    border-radius: 3px;
+    transform-origin: left center;
+  }
+
+  #armLeft {
+    width: 25px;
+    left: 19px;
+    top: 30px;
+    transform: rotate(145deg);
+  }
+
+  #armRight {
+    width: 25px;
+    left: 20px;
+    top: 30px;
+    transform: rotate(35deg);
+  }
+
+  #legLeft {
+    width: 28px;
+    left: 19px;
+    top: 49px;
+    transform: rotate(112deg);
+  }
+
+  #legRight {
+    width: 28px;
+    left: 20px;
+    top: 49px;
+    transform: rotate(68deg);
+  }
+
+  /* =========================
+     TARGET
+     ========================= */
+
+  .target {
+    position: absolute;
+    width: 54px;
+    height: 54px;
+    border: 4px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    pointer-events: none;
+    animation: targetPulse .55s infinite alternate;
+  }
+
+  .target::before,
+  .target::after {
+    content: "";
+    position: absolute;
+    background: white;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .target::before {
+    width: 4px;
+    height: 70px;
+  }
+
+  .target::after {
+    width: 70px;
+    height: 4px;
+  }
+
+  @keyframes targetPulse {
+    from {
+      transform: translate(-50%, -50%) scale(.88);
+    }
+    to {
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+  }
+
+  /* =========================
+     DIRECTION INDICATOR
+     ========================= */
+
+  #directionPrompt {
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform: translateX(-50%);
+    padding: 8px 14px;
+    border: 1px solid #34394f;
+    border-radius: 999px;
+    background: #111522dd;
+    color: #aeb5c8;
+    font-size: 11px;
+    letter-spacing: 1px;
+    z-index: 8;
+    pointer-events: none;
+  }
+
+  /* =========================
+     TOUCH CONTROLS
+     ========================= */
+
+  #controls {
+    height: 125px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+    background: #10131f;
+    border-top: 1px solid #292d40;
+    z-index: 10;
+  }
+
+  .controlButton {
+    border: 1px solid #34394f;
+    background: #181c2a;
+    color: white;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    user-select: none;
+    touch-action: manipulation;
+  }
+
+  .controlButton:active {
+    background: #2b3043;
+    transform: scale(.97);
+  }
+
+  #stopButton {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    z-index: 20;
+    padding: 8px 12px;
+    border: 1px solid #34394f;
+    border-radius: 8px;
+    background: #111522dd;
+    color: #aaa;
+    font-size: 11px;
+  }
+
+  /* =========================
+     FEEDBACK
+     ========================= */
+
+  #feedback {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(24px, 7vw, 52px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    opacity: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  #feedback.show {
+    animation: feedback .45s ease-out;
+  }
+
+  @keyframes feedback {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(.7);
+    }
+
+    30% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+  }
+
+  /* =========================
+     RESULTS
+     ========================= */
+
+  #results {
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  #results h1 {
+    font-size: 36px;
+    margin: 0 0 8px;
+  }
+
+  #resultMessage {
+    color: #9ca4b9;
+    margin-bottom: 24px;
+  }
+
+  .resultGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .resultCard {
+    border: 1px solid #292d40;
+    border-radius: 14px;
+    background: #111522;
+    padding: 18px;
+  }
+
+  .resultCard .label {
+    color: #777f97;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .resultCard .value {
+    font-size: 27px;
+    font-weight: 900;
+    margin-top: 5px;
+  }
+
+  #againButton,
+  #homeButton {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  #againButton {
+    border: 0;
+    background: white;
+    color: #090b11;
+    margin-bottom: 10px;
+  }
+
+  #homeButton {
+    border: 1px solid #34394f;
+    background: #181c2a;
+    color: white;
+  }
+
+  /* =========================
+     RESPONSIVE
+     ========================= */
+
+  @media (min-width: 700px) {
+    #controls {
+      height: 105px;
+      max-width: 650px;
+      width: 100%;
+      margin: 0 auto;
+      background: transparent;
+      border-top: 0;
+    }
+
+    #game {
+      background: #0b0d16;
+    }
+
+    #arena {
+      margin: 0 14px;
+      border: 1px solid #292d40;
+      border-radius: 14px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+  <!-- =========================
+       HEADER
+       ========================= -->
+
+  <header id="header">
+
+    <div>
+      <div id="title">T-CHAMBER</div>
+      <div id="subtitle">TRAINING DENSITY ENGINE</div>
+    </div>
+
+    <div id="densityDisplay">
+      <div class="label">DENSITY</div>
+      <div id="densityValue">1×</div>
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       HOME SCREEN
+       ========================= -->
+
+  <section id="home" class="screen active">
+
+    <div class="hero">
+
+      <h1>T-Chamber</h1>
+
+      <p>
+        A programmable training environment.
+        Increase stimulus density, react, move, recover,
+        and repeat.
+      </p>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panelTitle">
+        Training Density
+      </div>
+
+      <div id="densityButtons">
+
+        <button class="densityButton selected" data-density="1">
+          1×
+        </button>
+
+        <button class="densityButton" data-density="2">
+          2×
+        </button>
+
+        <button class="densityButton" data-density="3">
+          3×
+        </button>
+
+        <button class="densityButton" data-density="5">
+          5×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="panelTitle">
+        Session Length
+      </div>
+
+      <div id="durationButtons">
+
+        <button class="durationButton" data-duration="60">
+          1 MIN
+        </button>
+
+        <button class="durationButton selected" data-duration="180">
+          3 MIN
+        </button>
+
+        <button class="durationButton" data-duration="300">
+          5 MIN
+        </button>
+
+        <button class="durationButton" data-duration="600">
+          10 MIN
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <button id="startButton">
+      ENTER CHAMBER
+    </button>
+
+  </section>
+
+
+  <!-- =========================
+       GAME SCREEN
+       ========================= -->
+
+  <section id="game" class="screen">
+
+    <div id="hud">
+
+      <div class="hudItem">
+        <div class="hudLabel">TIME</div>
+        <div class="hudValue" id="timeValue">0:00</div>
+      </div>
+
+      <div class="hudItem">
+        <div class="hudLabel">STIMULI</div>
+        <div class="hudValue" id="stimuliValue">0</div>
+      </div>
+
+      <div class="hudItem">
+        <div class="hudLabel">HITS</div>
+        <div class="hudValue" id="hitsValue">0</div>
+      </div>
+
+      <div class="hudItem">
+        <div class="hudLabel">MISSES</div>
+        <div class="hudValue" id="missesValue">0</div>
+      </div>
+
+    </div>
+
+
+    <div id="arena">
+
+      <div id="arenaGrid"></div>
+
+      <div id="centerLine"></div>
+
+      <div id="directionPrompt">
+        MOVE TO TARGET
+      </div>
+
+      <div id="player">
+
+        <div id="head"></div>
+
+        <div id="body"></div>
+
+        <div class="limb" id="armLeft"></div>
+        <div class="limb" id="armRight"></div>
+
+        <div class="limb" id="legLeft"></div>
+        <div class="limb" id="legRight"></div>
+
+      </div>
+
+      <div id="feedback"></div>
+
+      <button id="stopButton">
+        EXIT
+      </button>
+
+    </div>
+
+
+    <div id="controls">
+
+      <button class="controlButton" data-action="left">
+        ← LEFT
+      </button>
+
+      <button class="controlButton" data-action="forward">
+        ↑ FORWARD
+      </button>
+
+      <button class="controlButton" data-action="right">
+        RIGHT →
+      </button>
+
+      <button class="controlButton" data-action="back">
+        ↓ BACK
+      </button>
+
+      <button class="controlButton" data-action="center">
+        ● CENTER
+      </button>
+
+      <button class="controlButton" data-action="random">
+        ✦ MOVE
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       RESULTS SCREEN
+       ========================= -->
+
+  <section id="results" class="screen">
+
+    <h1>Chamber Complete</h1>
+
+    <div id="resultMessage">
+      Session finished.
+    </div>
+
+    <div class="resultGrid">
+
+      <div class="resultCard">
+        <div class="label">REAL TIME</div>
+        <div class="value" id="resultTime">0:00</div>
+      </div>
+
+      <div class="resultCard">
+        <div class="label">DENSITY</div>
+        <div class="value" id="resultDensity">1×</div>
+      </div>
+
+      <div class="resultCard">
+        <div class="label">STIMULI</div>
+        <div class="value" id="resultStimuli">0</div>
+      </div>
+
+      <div class="resultCard">
+        <div class="label">HITS</div>
+        <div class="value" id="resultHits">0</div>
+      </div>
+
+      <div class="resultCard">
+        <div class="label">MISSES</div>
+        <div class="value" id="resultMisses">0</div>
+      </div>
+
+      <div class="resultCard">
+        <div class="label">ACCURACY</div>
+        <div class="value" id="resultAccuracy">0%</div>
+      </div>
+
+    </div>
+
+    <button id="againButton">
+      RUN AGAIN
+    </button>
+
+    <button id="homeButton">
+      RETURN HOME
+    </button>
+
+  </section>
+
+</div>
+
+
+<script>
+/*
+==========================================================
+T-CHAMBER v0.1
+
+Everything is intentionally contained in one file.
+
+Architecture:
+
+UI
+ ↓
+T-Chamber Engine
+ ↓
+Training Game
+ ↓
+Session Results
+
+No Scouter.
+No external libraries.
+No API.
+No account.
+No backend.
+
+The goal is to prove the training-density system first.
+==========================================================
+*/
+
+
+/* ========================================================
+   T-CHAMBER STATE
+======================================================== */
+
+const Chamber = {
+
+  density: 1,
+
+  duration: 180,
+
+  running: false,
+
+  startTime: 0,
+
+  elapsed: 0,
+
+  timer: null,
+
+  stimulusTimer: null,
+
+  stimuli: 0,
+
+  hits: 0,
+
+  misses: 0,
+
+  currentTarget: null,
+
+  targetDirection: null,
+
+  playerX: 0,
+
+  playerY: 0,
+
+  targetX: 0,
+
+  targetY: 0,
+
+  baseStimulusInterval: 1400,
+
+  /*
+    Density changes how quickly stimuli arrive.
+
+    1× = normal
+    2× = faster
+    3× = much faster
+    5× = high density
+  */
+
+  getStimulusInterval() {
+
+    const intervals = {
+      1: 1400,
+      2: 950,
+      3: 650,
+      5: 400
+    };
+
+    return intervals[this.density] || 1400;
+  }
+
+};
+
+
+/* ========================================================
+   DOM
+======================================================== */
+
+const home = document.getElementById("home");
+const game = document.getElementById("game");
+const results = document.getElementById("results");
+
+const densityValue = document.getElementById("densityValue");
+
+const startButton = document.getElementById("startButton");
+
+const timeValue = document.getElementById("timeValue");
+const stimuliValue = document.getElementById("stimuliValue");
+const hitsValue = document.getElementById("hitsValue");
+const missesValue = document.getElementById("missesValue");
+
+const arena = document.getElementById("arena");
+const player = document.getElementById("player");
+const feedback = document.getElementById("feedback");
+
+const resultTime = document.getElementById("resultTime");
+const resultDensity = document.getElementById("resultDensity");
+const resultStimuli = document.getElementById("resultStimuli");
+const resultHits = document.getElementById("resultHits");
+const resultMisses = document.getElementById("resultMisses");
+const resultAccuracy = document.getElementById("resultAccuracy");
+const resultMessage = document.getElementById("resultMessage");
+
+const againButton = document.getElementById("againButton");
+const homeButton = document.getElementById("homeButton");
+
+const stopButton = document.getElementById("stopButton");
+
+
+/* ========================================================
+   SCREEN CONTROL
+======================================================== */
+
+function showScreen(screen) {
+
+  home.classList.remove("active");
+  game.classList.remove("active");
+  results.classList.remove("active");
+
+  screen.classList.add("active");
+}
+
+
+/* ========================================================
+   FORMAT TIME
+======================================================== */
+
+function formatTime(seconds) {
+
+  seconds = Math.max(0, Math.floor(seconds));
+
+  const minutes = Math.floor(seconds / 60);
+
+  const secs = seconds % 60;
+
+  return (
+    minutes +
+    ":" +
+    String(secs).padStart(2, "0")
+  );
+}
+
+
+/* ========================================================
+   DENSITY SELECTION
+======================================================== */
+
+document.querySelectorAll(".densityButton").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    document
+      .querySelectorAll(".densityButton")
+      .forEach(b => b.classList.remove("selected"));
+
+    button.classList.add("selected");
+
+    Chamber.density =
+      Number(button.dataset.density);
+
+    densityValue.textContent =
+      Chamber.density + "×";
+
+  });
+
+});
+
+
+/* ========================================================
+   DURATION SELECTION
+======================================================== */
+
+document.querySelectorAll(".durationButton").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    document
+      .querySelectorAll(".durationButton")
+      .forEach(b => b.classList.remove("selected"));
+
+    button.classList.add("selected");
+
+    Chamber.duration =
+      Number(button.dataset.duration);
+
+  });
+
+});
+
+
+/* ========================================================
+   PLAYER POSITION
+======================================================== */
+
+function resetPlayer() {
+
+  Chamber.playerX =
+    arena.clientWidth / 2;
+
+  Chamber.playerY =
+    arena.clientHeight / 2;
+
+  renderPlayer();
+
+}
+
+
+function renderPlayer() {
+
+  player.style.left =
+    Chamber.playerX + "px";
+
+  player.style.top =
+    Chamber.playerY + "px";
+
+}
+
+
+/* ========================================================
+   PLAYER MOVEMENT
+======================================================== */
+
+function movePlayer(direction) {
+
+  if (!Chamber.running) {
+    return;
+  }
+
+  const step = 55;
+
+  if (direction === "left") {
+    Chamber.playerX -= step;
+  }
+
+  if (direction === "right") {
+    Chamber.playerX += step;
+  }
+
+  if (direction === "forward") {
+    Chamber.playerY -= step;
+  }
+
+  if (direction === "back") {
+    Chamber.playerY += step;
+  }
+
+  if (direction === "center") {
+
+    Chamber.playerX =
+      arena.clientWidth / 2;
+
+    Chamber.playerY =
+      arena.clientHeight / 2;
+  }
+
+  if (direction === "random") {
+
+    const directions = [
+      "left",
+      "right",
+      "forward",
+      "back"
+    ];
+
+    movePlayer(
+      directions[
+        Math.floor(
+          Math.random() * directions.length
+        )
+      ]
+    );
+
+    return;
+  }
+
+  constrainPlayer();
+
+  renderPlayer();
+
+  evaluateTarget();
+
+}
+
+
+/* ========================================================
+   KEEP PLAYER INSIDE ARENA
+======================================================== */
+
+function constrainPlayer() {
+
+  const margin = 30;
+
+  Chamber.playerX = Math.max(
+    margin,
+    Math.min(
+      arena.clientWidth - margin,
+      Chamber.playerX
+    )
+  );
+
+  Chamber.playerY = Math.max(
+    margin,
+    Math.min(
+      arena.clientHeight - margin,
+      Chamber.playerY
+    )
+  );
+
+}
+
+
+/* ========================================================
+   CREATE TARGET
+======================================================== */
+
+function spawnTarget() {
+
+  if (!Chamber.running) {
+    return;
+  }
+
+  /*
+    Resolve previous target as a miss if
+    the player never reached it.
+  */
+
+  if (Chamber.currentTarget) {
+
+    Chamber.misses++;
+
+    showFeedback("MISS");
+
+    removeTarget();
+
+  }
+
+
+  const margin = 65;
+
+  Chamber.targetX =
+    margin +
+    Math.random() *
+    Math.max(
+      1,
+      arena.clientWidth - margin * 2
+    );
+
+  Chamber.targetY =
+    margin +
+    Math.random() *
+    Math.max(
+      1,
+      arena.clientHeight - margin * 2
+    );
+
+
+  /*
+    Determine rough direction from player
+    to target.
+  */
+
+  const dx =
+    Chamber.targetX -
+    Chamber.playerX;
+
+  const dy =
+    Chamber.targetY -
+    Chamber.playerY;
+
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+
+    Chamber.targetDirection =
+      dx > 0 ? "RIGHT" : "LEFT";
+
+  } else {
+
+    Chamber.targetDirection =
+      dy > 0 ? "BACK" : "FORWARD";
+
+  }
+
+
+  const target =
+    document.createElement("div");
+
+  target.className = "target";
+
+  target.style.left =
+    Chamber.targetX + "px";
+
+  target.style.top =
+    Chamber.targetY + "px";
+
+
+  arena.appendChild(target);
+
+  Chamber.currentTarget = target;
+
+  Chamber.stimuli++;
+
+  updateHUD();
+
+}
+
+
+/* ========================================================
+   REMOVE TARGET
+======================================================== */
+
+function removeTarget() {
+
+  if (
+    Chamber.currentTarget &&
+    Chamber.currentTarget.parentNode
+  ) {
+
+    Chamber.currentTarget.parentNode
+      .removeChild(
+        Chamber.currentTarget
+      );
+  }
+
+  Chamber.currentTarget = null;
+
+}
+
+
+/* ========================================================
+   TARGET COLLISION
+======================================================== */
+
+function evaluateTarget() {
+
+  if (!Chamber.currentTarget) {
+    return;
+  }
+
+
+  const dx =
+    Chamber.playerX -
+    Chamber.targetX;
+
+  const dy =
+    Chamber.playerY -
+    Chamber.targetY;
+
+  const distance =
+    Math.sqrt(
+      dx * dx +
+      dy * dy
+    );
+
+
+  /*
+    Player counts as successful
+    when close enough to the target.
+  */
+
+  if (distance < 65) {
+
+    Chamber.hits++;
+
+    showFeedback("HIT");
+
+    removeTarget();
+
+  }
+
+
+  updateHUD();
+
+}
+
+
+/* ========================================================
+   FEEDBACK
+======================================================== */
+
+function showFeedback(text) {
+
+  feedback.textContent = text;
+
+  feedback.classList.remove("show");
+
+  /*
+    Force animation restart.
+  */
+
+  void feedback.offsetWidth;
+
+  feedback.classList.add("show");
+
+}
+
+
+/* ========================================================
+   HUD
+======================================================== */
+
+function updateHUD() {
+
+  const elapsed =
+    Chamber.running
+      ? (Date.now() - Chamber.startTime) / 1000
+      : Chamber.elapsed;
+
+
+  timeValue.textContent =
+    formatTime(elapsed);
+
+  stimuliValue.textContent =
+    Chamber.stimuli;
+
+  hitsValue.textContent =
+    Chamber.hits;
+
+  missesValue.textContent =
+    Chamber.misses;
+
+}
+
+
+/* ========================================================
+   SESSION TIMER
+======================================================== */
+
+function startClock() {
+
+  clearInterval(Chamber.timer);
+
+  Chamber.timer =
+    setInterval(() => {
+
+      if (!Chamber.running) {
+        return;
+      }
+
+      Chamber.elapsed =
+        (Date.now() -
+          Chamber.startTime) / 1000;
+
+      updateHUD();
+
+
+      if (
+        Chamber.elapsed >=
+        Chamber.duration
+      ) {
+
+        endSession();
+
+      }
+
+    }, 100);
+
+}
+
+
+/* ========================================================
+   STIMULUS LOOP
+======================================================== */
+
+function startStimulusLoop() {
+
+  clearTimeout(
+    Chamber.stimulusTimer
+  );
+
+  function nextStimulus() {
+
+    if (!Chamber.running) {
+      return;
+    }
+
+    spawnTarget();
+
+    Chamber.stimulusTimer =
+      setTimeout(
+        nextStimulus,
+        Chamber.getStimulusInterval()
+      );
+
+  }
+
+  nextStimulus();
+
+}
+
+
+/* ========================================================
+   START SESSION
+======================================================== */
+
+function startSession() {
+
+  clearInterval(Chamber.timer);
+
+  clearTimeout(
+    Chamber.stimulusTimer
+  );
+
+  Chamber.running = true;
+
+  Chamber.startTime =
+    Date.now();
+
+  Chamber.elapsed = 0;
+
+  Chamber.stimuli = 0;
+
+  Chamber.hits = 0;
+
+  Chamber.misses = 0;
+
+  Chamber.currentTarget = null;
+
+  showScreen(game);
+
+  resetPlayer();
+
+  updateHUD();
+
+  startClock();
+
+  startStimulusLoop();
+
+}
+
+
+/* ========================================================
+   END SESSION
+======================================================== */
+
+function endSession() {
+
+  if (!Chamber.running) {
+    return;
+  }
+
+  Chamber.running = false;
+
+  Chamber.elapsed =
+    (Date.now() -
+      Chamber.startTime) / 1000;
+
+  clearInterval(Chamber.timer);
+
+  clearTimeout(
+    Chamber.stimulusTimer
+  );
+
+  /*
+    Resolve final target.
+  */
+
+  if (Chamber.currentTarget) {
+
+    Chamber.misses++;
+
+    removeTarget();
+
+  }
+
+  updateResults();
+
+  showScreen(results);
+
+}
+
+
+/* ========================================================
+   RESULTS
+======================================================== */
+
+function updateResults() {
+
+  const total =
+    Chamber.hits +
+    Chamber.misses;
+
+  const accuracy =
+    total > 0
+      ? Math.round(
+          (Chamber.hits / total) * 100
+        )
+      : 0;
+
+
+  resultTime.textContent =
+    formatTime(Chamber.elapsed);
+
+  resultDensity.textContent =
+    Chamber.density + "×";
+
+  resultStimuli.textContent =
+    Chamber.stimuli;
+
+  resultHits.textContent =
+    Chamber.hits;
+
+  resultMisses.textContent =
+    Chamber.misses;
+
+  resultAccuracy.textContent =
+    accuracy + "%";
+
+
+  if (accuracy >= 90) {
+
+    resultMessage.textContent =
+      "High response consistency.";
+
+  } else if (accuracy >= 70) {
+
+    resultMessage.textContent =
+      "Solid response under training load.";
+
+  } else if (accuracy >= 50) {
+
+    resultMessage.textContent =
+      "The stimulus is beginning to exceed current consistency.";
+
+  } else {
+
+    resultMessage.textContent =
+      "Density exceeded current response consistency.";
+
+  }
+
+}
+
+
+/* ========================================================
+   EXIT
+======================================================== */
+
+function exitSession() {
+
+  Chamber.running = false;
+
+  clearInterval(
+    Chamber.timer
+  );
+
+  clearTimeout(
+    Chamber.stimulusTimer
+  );
+
+  removeTarget();
+
+  showScreen(home);
+
+}
+
+
+/* ========================================================
+   TOUCH CONTROLS
+======================================================== */
+
+document
+  .querySelectorAll(".controlButton")
+  .forEach(button => {
+
+    const action =
+      button.dataset.action;
+
+    button.addEventListener(
+      "pointerdown",
+      event => {
+
+        event.preventDefault();
+
+        movePlayer(action);
+
+      }
+    );
+
+  });
+
+
+/* ========================================================
+   KEYBOARD CONTROLS
+======================================================== */
+
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (!Chamber.running) {
+      return;
+    }
+
+    let action = null;
+
+    if (
+      event.key === "ArrowLeft" ||
+      event.key.toLowerCase() === "a"
+    ) {
+      action = "left";
+    }
+
+    if (
+      event.key === "ArrowRight" ||
+      event.key.toLowerCase() === "d"
+    ) {
+      action = "right";
+    }
+
+    if (
+      event.key === "ArrowUp" ||
+      event.key.toLowerCase() === "w"
+    ) {
+      action = "forward";
+    }
+
+    if (
+      event.key === "ArrowDown" ||
+      event.key.toLowerCase() === "s"
+    ) {
+      action = "back";
+    }
+
+    if (event.key === " ") {
+
+      event.preventDefault();
+
+      action = "center";
+
+    }
+
+    if (action) {
+
+      event.preventDefault();
+
+      movePlayer(action);
+
+    }
+
+  }
+);
+
+
+/* ========================================================
+   SWIPE MOVEMENT
+======================================================== */
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+arena.addEventListener(
+  "touchstart",
+  event => {
+
+    if (!Chamber.running) {
+      return;
+    }
+
+    const touch =
+      event.changedTouches[0];
+
+    touchStartX =
+      touch.clientX;
+
+    touchStartY =
+      touch.clientY;
+
+  },
+  { passive: true }
+);
+
+
+arena.addEventListener(
+  "touchend",
+  event => {
+
+    if (!Chamber.running) {
+      return;
+    }
+
+    const touch =
+      event.changedTouches[0];
+
+    const dx =
+      touch.clientX -
+      touchStartX;
+
+    const dy =
+      touch.clientY -
+      touchStartY;
+
+    const threshold = 30;
+
+    if (
+      Math.abs(dx) < threshold &&
+      Math.abs(dy) < threshold
+    ) {
+
+      return;
+
+    }
+
+    if (
+      Math.abs(dx) >
+      Math.abs(dy)
+    ) {
+
+      movePlayer(
+        dx > 0
+          ? "right"
+          : "left"
+      );
+
+    } else {
+
+      movePlayer(
+        dy > 0
+          ? "back"
+          : "forward"
+      );
+
+    }
+
+  },
+  { passive: true }
+);
+
+
+/* ========================================================
+   BUTTONS
+======================================================== */
+
+startButton.addEventListener(
+  "click",
+  startSession
+);
+
+stopButton.addEventListener(
+  "click",
+  exitSession
+);
+
+againButton.addEventListener(
+  "click",
+  startSession
+);
+
+homeButton.addEventListener(
+  "click",
+  () => {
+
+    showScreen(home);
+
+  }
+);
+
+
+/* ========================================================
+   RESIZE
+======================================================== */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    if (!Chamber.running) {
+      return;
+    }
+
+    constrainPlayer();
+
+    renderPlayer();
+
+  }
+);
+
+
+/* ========================================================
+   INITIALIZATION
+======================================================== */
+
+densityValue.textContent =
+  Chamber.density + "×";
+
+showScreen(home);
+
+</script>
+
+</body>
+</html>
